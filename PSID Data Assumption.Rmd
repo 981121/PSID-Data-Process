@@ -1,0 +1,177 @@
+---
+title: "PSID Data Assumption"
+output: 
+  github_document:
+    toc: true
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Definition of Generation
+
+Before we start to discuss the dataframe, we need to clearly define our
+research objectives, who we want to study, and how to identify them.
+
+Due to the extended time span of the data, inevitable changes in family
+structure and membership occur in longitudinal family tracking surveys.
+Over the PSID survey spanning more than fifty years, we encounter the
+mortality and attrition of the earliest generation. Concurrently, the
+children within these families mature, assume parental roles, and
+establish new households, thereby transitioning from the status of
+children to parents. 
+
+Consequently, it is imperative to precisely
+delineate the terminology for each generation. In our study, we
+primarily categorize the subjects into three generations.
+
+1.  **Generation I: PARENTS**
+
+-   This generation we called parents, means they existed in baseline
+    PSID wave and in all subsequent waves. They are identified as
+    parents, specifically as the parents of the individuals under study.
+    They represent the preceding generation of our research subjects.
+
+2.  **Generation II: INDIVIDUALS**
+
+-   This generation we called individuals, means they existed in
+    baseline PSID wave and in all subsequent waves. They are identified
+    as children in their family at least 20 years.
+
+3.  **Generation III: CHILDREN**
+
+-   This generation we called children, consists of the children of the
+    individuals, meaning the next generation of the individuals.
+
+## Definition of individuals
+
+The individuals are the focus of our study. Therefore, in selecting the
+data, we will center our selection on these individuals and then extend
+our analysis to include fertility data for the subsequent generation and
+household income data for the preceding generation.
+
+Assuming the earliest children were born in 1968, they would start
+having children around twenty years later, in 1988. Since our data
+selection is limited to information before the year 2000, there will be
+an overlap, potentially including information about the children of the
+first generation. They will be as an individual to be collected.
+
+**The perspective individuals birth period from age 20-45**
+
+###  Range of the individuals birth year: 1968-2000
+
+-   If the individual age is less than 20 until 2021, is out of our
+    sample.
+
+-   If individual’s age over than 45 before 2021, only collect the
+    information between 20 and 45
+
+###  Individuals birth
+
+-   To determine the birthdate of each individual, we use the wave that
+    is closest to the individual’s actual birth year with a recorded
+    entry.
+
+-   We then deduplicate the records to compile a comprehensive list of
+    all individuals with birth records from 1983 to 2021.
+
+## Definition of fertlilty
+
+Fertility data has been recorded from 1985 to 2021. During this period,
+there may be instances where contact was lost and fertility records
+ceased before 2021, necessitating further data cleaning. According to
+the PSID information we have, the number of children is recorded
+starting from 1985 and is updated cumulatively up to 2021.
+
+Consequently, the data reflects the most recent update from the last
+wave. For example, if an individual has two children and the most recent
+wave that collected birth history data is 1997, the variable will show a
+value of 2 until 2021. Any changes in the number of children after 1997
+remain unknown.
+
+**Here, we define the birthdate of children as that of the firstborn.**
+This helps us calculate the individual’s age at the time of their
+planned parenthood.
+
+### YEAR 1ST/ONLY CHILD BORN
+
+-   The values for this variable indicate the birth year reported for
+    this individual's first or only child. The data are current as of
+    the wave.
+
+###  Number of Live Births to this Individual
+
+-   The values for this variable indicate the total number of children
+    born to this individual as of the wave.
+
+###  Most Recent Wave in Which Individual's Birth History Data Were Updated
+
+-   This variable indicates the recency of the birth history information
+    from 1985-2021.
+
+-   If an OFUM who has remained in a responding family is now 47 years
+    old, his or her childbirth history has not been updated in the last
+    few waves, since OFUMs' childbirth information is not collected once
+    they achieve 45 years of age.
+
+## Definition of family income
+
+1.  **Family money income( Parents income )**
+
+-   The family income is defined as the summation of pre-tax income and
+    transfer income.
+
+-   Due to the varying roles individuals may have within a family over
+    time, changes in family composition can affect the income associated
+    with the family unit.
+
+-   For instance, if an individual transitions from being a child to
+    becoming the head of a new household, or if they marry and later
+    divorce, the family income linked to that individual may change due
+    to these shifts. Additionally, children may leave the family and
+    lose contact, which further complicates the data.
+
+-  __To address these issues, my approach is to focus exclusively on
+    the period when individuals are aged 0-20 and are designated as
+    children within the family.__ This approach helps avoid the
+    aforementioned problems and ensures that the family data is fully
+    relevant to the child. Therefore, the household income data
+    corresponding to each individual will only include data from the 20
+    years following their birth and will be limited to periods when the
+    individual is identified as a child within the family.
+    
+
+## Assumption of missing data
+
+###  Individual information
+
+-   Remove the individual who lost all the birth information
+
+-   For individual who does not have birth month information, suggest to
+    set 0.5. For example, who born in 1987, and no month information,
+    our data point should be 1987.5.
+
+###  Birth information
+
+-   For child who does not have birth month information (value = 98),
+    suggest to set 0.5. For example, who born in 1987, and no month
+    information, our data point should be 1987.5.
+
+-   If first birth date is 9999 (no information), suggest to set 9999.99
+    with month missing to instead.
+
+-   Number of Live Births to this Individual: remove value 99 form rows
+    means they are out of samples.
+
+###  Family income information
+
+-   Since 1997, waves have been conducted biennially. Therefore, we need
+    to supplement the years without data post-1996 and interpolate them
+    with a value of 2, where 0 and 1 indicate no income, and negative
+    numbers represent losses.
+
+-   Identify the full income time series from individual birth. Perfect
+    condition is only keep the data who has fully income information
+    from individuals age 0-20.
