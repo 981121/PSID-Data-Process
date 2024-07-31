@@ -1,0 +1,1431 @@
+---
+title: "PSID Data Process"
+output: 
+  github_document:
+    toc: true
+    toc_depth: 3
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Process Summary
+
+1.  First, we create a unique ID for each person to avoid confusion.
+
+2.  Next, we filter personal information:
+
+-   Define variables for personal information, including birth date,
+    individual status in the survey, and family identity.
+
+-   Calculate the person’s birth date.
+
+-   Remove individuals whose identity does not match the criteria.
+
+3.  Third, we define fertility information, including:
+
+-   The birth date of the first child, the most recent year of fertility
+    information update, and the number of children.
+
+-   Calculate the children’s ages.
+
+-   Remove individuals with no fertility information.
+
+-   Remove outliers, such as individuals who had children outside the
+    age range of 20-45.
+
+4.  Finally, we define family income, including:
+
+-   After determining the individual’s family identity, extract the time
+    series of family income since the individual’s birth.
+
+-   Remove individuals with no family income information.
+
+## Data Resources
+
+### Packages preparation and uplode Data from original dataset
+
+```{r eval=FALSE}
+library(readxl)
+library(tidyr)
+library(dplyr)
+J336132 <- read_excel("~/Dropbox/Functional Fertility/PSID/Original data/J336132.xlsx")
+fd<- data.frame(J336132)
+```
+
+**Number of Individuals is 84121**
+
+### Define Variables
+
+1.  **Individual date variables**
+
+```{r eval=FALSE}
+
+## release number
+release_numbers <- c(
+  "ER30000", "V1", "V441", "V1101", "V1801", "V2401", "V3001", 
+  "V3401", "V3801",
+  "V4301", "V5201", "V5701", "V6301", "V6901", 
+  "V7501", "V8201", "V8801", "V10001",
+  "V11101", "V12501", "V13701", "V14801", "V16301",
+  "V17701", "V19001", "V20301",
+  "V21601", "ER2001","ER5001","ER7001", "ER10001", 
+  "ER13001", "ER17001", "ER21001", "ER25001", "ER36001", 
+  "ER42001", "ER47301",
+  "ER53001", "ER60001", "ER66001", "ER72001", "ER78001"
+)
+
+
+
+## individual birth year
+birth_year_vars <- c("ER30404", "ER30434", "ER30468", "ER30503", "ER30540", "ER30575",
+                     "ER30611", "ER30647", "ER30694", "ER30738", "ER30811", "ER33106",
+                     "ER33206", "ER33306", "ER33406", "ER33506", "ER33606", "ER33706",
+                     "ER33806", "ER33906", "ER34006", "ER34106", "ER34206", "ER34307",
+                     "ER34506", "ER34706", "ER34906")
+
+
+birth_month_vars <- c("ER30403", "ER30433", "ER30467", "ER30502", "ER30539", "ER30574",
+                      "ER30610", "ER30646", "ER30693", "ER30737", "ER30810", "ER33105",
+                      "ER33205", "ER33305", "ER33405", "ER33505", "ER33605", "ER33705",
+                      "ER33805", "ER33905", "ER34005", "ER34105", "ER34205", "ER34306",
+                      "ER34505", "ER34705", "ER34905")
+
+var_pairs <- list(
+  c('ER30404', 'ER30403'),
+  c('ER30434', 'ER30433'),
+  c('ER30468', 'ER30467'),
+  c('ER30503', 'ER30502'),
+  c('ER30540', 'ER30539'),
+  c('ER30575', 'ER30574'),
+  c('ER30611', 'ER30610'),
+  c('ER30647', 'ER30646'),
+  c('ER30694', 'ER30693'),
+  c('ER30738', 'ER30737'),
+  c('ER30811', 'ER30810'),
+  c('ER33106', 'ER33105'),
+  c('ER33206', 'ER33205'),
+  c('ER33306', 'ER33305'),
+  c('ER33406', 'ER33405'),
+  c('ER33506', 'ER33505'),
+  c('ER33606', 'ER33605'),
+  c('ER33706', 'ER33705'),
+  c('ER33806', 'ER33805'),
+  c('ER33906', 'ER33905'),
+  c('ER34006', 'ER34005'),
+  c('ER34106', 'ER34105'),
+  c('ER34206', 'ER34205'),
+  c('ER34307', 'ER34306'),
+  c('ER34506', 'ER34505'),
+  c('ER34706', 'ER34705'),
+  c('ER34906', 'ER34905')
+)
+
+simplified_years <- c("83", "84", "85", "86", "87", "88",
+                      "89", "90", "91", "92", "93", "94", 
+                      "95", "96", "97", "99", "01", "03", 
+                      "05", "07", "09", "11", "13", "15", 
+                      "17", "19","21")
+```
+
+2.  **Individual status variables**
+
+```{r eval=FALSE}
+# Define the list of interview number variables
+interview_vars <- c("ER30020", "ER30043", "ER30067", "ER30091", "ER30117", 
+                    "ER30138", "ER30160", "ER30188", "ER30217", "ER30246",
+                    "ER30283", "ER30313", "ER30343", "ER30373", "ER30399", "ER30429", "ER30463", 
+                    "ER30498", "ER30535", "ER30570", "ER30606", "ER30642", "ER30689", 
+                    "ER30733", "ER30806", "ER33101", "ER33201", "ER33301", "ER33401", 
+                    "ER33501", "ER33601", "ER33701", "ER33801", "ER33901", "ER34001", 
+                    "ER34101", "ER34201", "ER34301", "ER34501", "ER34701", "ER34901")
+
+## Sequence number need to be 1-20
+sequence_vars <- c(
+  "ER30021", "ER30044", "ER30068", "ER30092", 
+  "ER30118", "ER30139", "ER30161", "ER30189", 
+  "ER30218", "ER30247", "ER30284", "ER30314", 
+  "ER30344", "ER30374", "ER30400", "ER30430", 
+  "ER30464", "ER30499", "ER30536", "ER30571", 
+  "ER30607", "ER30643", "ER30690", "ER30734", 
+  "ER30807", "ER33102", "ER33202", "ER33302", 
+  "ER33402", "ER33502", "ER33602", "ER33702", 
+  "ER33802", "ER33902", "ER34002", "ER34102", 
+  "ER34202", "ER34302", "ER34502", "ER34702", 
+  "ER34902")
+
+## Select 3,0 as children in the family 
+relation_vars_82 <- c(
+  "ER30003", "ER30022", "ER30045", "ER30069", "ER30093", "ER30119", 
+  "ER30140", "ER30162", "ER30190", "ER30219", "ER30248", "ER30285",
+  "ER30315", "ER30345", "ER30375")
+  
+## Select 0, 30-38 as children in the family  
+relation_vars_83 <- c(  
+  "ER30401", "ER30431", "ER30465", "ER30500", "ER30537", "ER30572", 
+  "ER30608", "ER30644", "ER30691", "ER30735", "ER30808", "ER33103", 
+  "ER33203", "ER33303", "ER33403", "ER33503", "ER33603", "ER33703", 
+  "ER33803", "ER33903", "ER34003", "ER34103", "ER34203", "ER34303", 
+  "ER34503", "ER34703", "ER34903")
+
+
+r_xx<- 
+c(
+  "R_83", "R_84", "R_85", "R_86", "R_87", "R_88", "R_89", "R_90", "R_91", "R_92",
+  "R_93", "R_94", "R_95", "R_96", "R_97", "R_99", "R_01", "R_03", "R_05", "R_07",
+  "R_09", "R_11", "R_13", "R_15", "R_17", "R_19", "R_21"
+)
+
+
+## Here relationship need to be adjusted by different value after 1982
+```
+
+3.  **Family Income Variables**
+
+```{r eval=FALSE}
+family_income_vars <- c(
+ "V81", "V529", "V1514", "V2226", "V2852", "V3256", 
+ "V3676", "V4154", "V5029", "V5626","V6173", "V6766", 
+ "V7412", "V8065", "V8689", "V9375", "V11022", "V12371", 
+ "V13623", "V14670",
+  "V16144", "V17533", "V18875", "V20175", "V21481", 
+ "V23322", "ER4153", "ER6993", "ER9244",
+  "ER12079", "ER16462", "ER20456", "ER24099", 
+ "ER28037", "ER41027", "ER46935", "ER52343",
+  "ER58152", "ER65349", "ER71426", "ER77448", "ER81775")
+
+
+years <- c(
+  "1968", "1969", "1970", "1971", "1972", "1973", "1974", 
+  "1975", "1976", "1977",
+  "1978" ,"1979", "1980" ,"1981", "1982", "1983" ,"1984", 
+  "1985" ,"1986" ,"1987",
+   "1988", "1989", "1990", "1991", "1992", "1993", "1994", 
+  "1995", "1996", "1997",
+   "1999", "2001", "2003", "2005", "2007", "2009", "2011", 
+  "2013", "2015", "2017",
+  "2019","2021"
+)
+
+new_years <- c("1998", "2000", "2002", "2004", 
+               "2006", "2008", "2010", "2012", "2014", 
+               "2016", "2018", "2020")
+
+
+
+all_years <- c("1968", "1969", "1970", "1971", "1972", 
+               "1973", "1974", "1975", "1976", 
+               "1977", "1978", "1979", "1980", "1981", 
+               "1982", "1983", "1984", "1985", "1986", 
+               "1987", "1988", "1989", "1990", "1991", 
+               "1992", "1993", "1994", "1995", "1996", 
+               "1997", "1998", "1999", "2000", "2001", 
+               "2002", "2003", "2004", "2005", "2006", 
+               "2007", "2008", "2009", "2010", "2011", 
+               "2012", "2013", "2014", "2015", "2016", 
+               "2017", "2018", "2019", "2020","2021")
+
+```
+
+# Data Organization
+
+### Complete individuals information
+
+1.  **Create Unique ID number**
+
+```{r eval=FALSE}
+fd <- fd %>%
+  mutate(ID = (ER30001 * 1000) + ER30002) # add unique ID
+
+fd <- fd %>%
+  rename(sex = ER32000,
+  year_birth_info_most_recently_updated = ER32021, 
+  No_birth_in_recently_updated_year = ER32022)
+```
+
+2.  **Select individual birth information**
+
+```{r eval=FALSE}
+create_formatted_date <- function(fd, year_col, month_col, simplified_year) {
+  fd %>%
+    mutate(
+      formatted_date = case_when(
+        .[[year_col]] %in% c(9999, 0) ~ 9999,  
+        # if year is 9999 or 0，equal to 9999
+        .[[month_col]] %in% c(0, 99) ~ 99,  
+        # if month is 9999 or 0，equal to 99
+        TRUE ~ .[[year_col]] + (.[[month_col]] - 1) / 12  
+      )
+    ) %>%
+    rename(!!simplified_year := formatted_date)
+}
+
+
+for (i in seq_along(var_pairs)) {
+  pair <- var_pairs[[i]]
+  year_col <- pair[1]
+  month_col <- pair[2]
+  
+  # create the new variable to merge birth information
+  fd <- create_formatted_date(fd, year_col, month_col, simplified_years[i])
+}
+
+
+fd[simplified_years] <- lapply(fd[simplified_years], as.numeric)
+
+fd <- fd %>%
+  pivot_longer(cols = all_of(simplified_years), 
+               names_to = "variable", values_to = "birth_year") %>%
+  filter(birth_year >= 1968 & birth_year < 2001) %>%
+  distinct()
+
+fd <- fd %>%
+  group_by(ID) %>%  # using ID number to remove duplicate data
+  slice(1) %>%
+  ungroup()
+
+
+
+
+# age at end of 2021
+fd <- fd %>%
+  mutate(age_end_2021 = 2022 - birth_year)
+
+```
+
+**After first age selection, the number of individuals is 33172, 39.4%
+of all sample**
+
+### Children Birth Information
+
+1.  **First child born year**
+
+```{r eval=FALSE}
+fd <- fd %>%
+  mutate(
+    first_child_born = case_when(
+      ER32024 == 9999 ~ 9999,  # if year is 9999，equal to 9999
+      ER32023 == 21 ~ ER32024,  # Season transformation
+      ER32023 == 22 ~ ER32024 + 0.25,  
+      ER32023 == 23 ~ ER32024 + 0.5, 
+      ER32023 == 24 ~ ER32024 + 0.75,  
+      ER32023 == 98 ~ ER32024 + 0.5,  
+      ER32023 == 99 ~ 99,  # if month is 9999，equal to 99
+      TRUE ~ ER32024 + (ER32023 - 1) / 12  
+    )
+  )
+```
+
+2.  **Does individual has children before 2021?**
+
+```{r eval=FALSE}
+fd <- fd %>%
+  mutate(
+    had_children_before_2021 = case_when(
+      No_birth_in_recently_updated_year == 0 ~ "N",  # No child
+      No_birth_in_recently_updated_year %in% c(98, 99) & 
+      first_child_born == 9999 ~ "F",  
+      # lost child birth and no. information
+      (!is.na(first_child_born) & first_child_born < 2022) | No_birth_in_recently_updated_year != 0 ~ "Y",  
+      # before 2022 has child born or ER32022 not zero
+      TRUE ~ "N"  # other cases
+    )
+  )
+
+```
+
+3.  **Calculate the age at first born**
+
+-   Keep individuals age between 20-45(survey ignore birth information
+    after individual age 45) and 0(no child),
+-   and filter child born after 1988 (individual who born in the first
+    wave at age 20 in 1988)
+
+```{r eval=FALSE}
+fd <- fd %>%
+  filter(first_child_born >= 1988 | first_child_born == 9999) %>%  
+  mutate(
+    age_at_first_birth = ifelse(first_child_born == 9999, 0, 
+                                first_child_born - birth_year)  
+  ) %>%
+  filter(age_at_first_birth == 0 | (age_at_first_birth >= 20 &
+                                      age_at_first_birth <= 45))  
+```
+
+**After second child birth selection, the number of individuals is
+29740, 35.4% of all sample**
+
+### Family incomes Information
+
+```{r eval=FALSE}
+income_year <- setNames(years, family_income_vars)
+
+# rename the income variable as "years"
+
+fd <- fd %>%
+  rename_with(~ setNames(years, family_income_vars), 
+              all_of(family_income_vars))
+
+#create time series
+
+for (year in new_years) {
+  fd[[year]] <- 2
+}
+
+```
+
+## Adjusted dataframe
+
+1.  **Filter relationship before 1982, only keep value = 3,0, make sure
+    individuals in current family as child**
+
+```{r eval=FALSE}
+# First filter the Relation to the head variables before 1982
+fd<- fd %>%
+  filter(if_all(all_of(relation_vars_82), ~ . %in% c(0, 3)))
+
+
+new_Re_83 <- c(
+    "ER30401" = "R_83",
+    "ER30431" = "R_84",
+    "ER30465" = "R_85",
+    "ER30500" = "R_86",
+    "ER30537" = "R_87",
+    "ER30572" = "R_88",
+    "ER30608" = "R_89",
+    "ER30644" = "R_90",
+    "ER30691" = "R_91",
+    "ER30735" = "R_92",
+    "ER30808" = "R_93",
+    "ER33103" = "R_94",
+    "ER33203" = "R_95",
+    "ER33303" = "R_96",
+    "ER33403" = "R_97",
+    "ER33503" = "R_99",
+    "ER33603" = "R_01",
+    "ER33703" = "R_03",
+    "ER33803" = "R_05",
+    "ER33903" = "R_07",
+    "ER34003" = "R_09",
+    "ER34103" = "R_11",
+    "ER34203" = "R_13",
+    "ER34303" = "R_15",
+    "ER34503" = "R_17",
+    "ER34703" = "R_19",
+    "ER34903" = "R_21"
+)
+
+
+col_names <- names(fd)
+
+
+for (i in seq_along(col_names)) {
+    if (col_names[i] %in% names(new_Re_83)) {
+        col_names[i] <- new_Re_83[col_names[i]]
+    }
+}
+
+names(fd) <- col_names
+
+
+
+## Rename sample and respondent variables
+
+fd<- fd %>%
+  rename(Wtr_sample = ER32006,
+         Wtr_responding= ER32001)
+
+
+## Completely lost birth information
+fd<- fd %>%
+filter(had_children_before_2021 != "F") 
+
+```
+
+2.  **Reconstruct the dataframe and reorder the variables**
+
+```{r eval=FALSE}
+# Filter age_at_first_birth, No_birth_in_recently_updated_year,
+# first_child_born, year_birth_info_most_recently_updated 
+# which is not useful data point
+fd <- fd %>%
+  filter(
+    !(age_at_first_birth == 0 &
+      No_birth_in_recently_updated_year %in% c(0,99) &
+      first_child_born == 9999 &
+      year_birth_info_most_recently_updated == 9999)
+  )
+
+# Remove unnecessary variables
+
+fd <- select(fd,-ER30001, -ER30002,-ER32023,-ER32024,
+             -one_of(birth_month_vars),
+             -one_of(birth_year_vars),-one_of(release_numbers),
+             -one_of(relation_vars_82), 
+             -variable,- one_of(interview_vars))
+
+# Reorder the data structure
+fda_data <- fd %>%  select(ID, sex, birth_year, age_end_2021, 
+                           age_at_first_birth,
+                           No_birth_in_recently_updated_year,
+                           first_child_born,
+                           year_birth_info_most_recently_updated,had_children_before_2021,
+                           all_of(all_years), all_of(r_xx),
+                           all_of(sequence_vars), everything())
+
+```
+
+**After third data selection, the number of individuals is 22451, 26.7%
+of all sample**
+
+## Group and filter individuals based on their birth year, from 1968 to 2000.
+
+Transfer birth year as int.
+
+```{r eval=FALSE}
+fda_data <- fda_data %>%
+  mutate(birth_year_int = floor(birth_year))
+
+fda_data['birth_year_int'] <- lapply(fda_data['birth_year_int'], as.numeric)
+
+
+# For version 1
+inc_var <- c("fa_inc_0", "fa_inc_1", "fa_inc_2", "fa_inc_3", 
+             "fa_inc_4", 
+               "fa_inc_5", "fa_inc_6", "fa_inc_7", "fa_inc_8", 
+             "fa_inc_9", 
+               "fa_inc_10", "fa_inc_11", "fa_inc_12", "fa_inc_13", 
+             "fa_inc_14", 
+               "fa_inc_15", "fa_inc_16", "fa_inc_17", "fa_inc_18", 
+             "fa_inc_19", 
+               "fa_inc_20")
+
+
+
+# For version 2
+inc_var1 <- c("fa_inc_0", "fa_inc_1", "fa_inc_2", "fa_inc_3", 
+             "fa_inc_4", 
+               "fa_inc_5", "fa_inc_6", "fa_inc_7", "fa_inc_8", 
+             "fa_inc_9", 
+               "fa_inc_10", "fa_inc_11", "fa_inc_12", "fa_inc_13", 
+             "fa_inc_14", 
+               "fa_inc_15", "fa_inc_16", "fa_inc_17")
+
+```
+
+# Version 1: Baseline
+
+1.  Filter who born in 1968
+
+```{r eval=FALSE}
+a68 <- fda_data %>%
+  filter(birth_year_int %in% 1968)
+
+a68 <- a68[, c(1:30, 64:133)]
+
+
+old_names <- as.character(1968:1988)
+new_names <- paste0("fa_inc_", 0:20)
+# rename income rows
+names(a68)[names(a68) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:20) 
+
+a68 <- a68 %>%
+  filter(!(rowSums(across(all_of(inc_var), ~ . == 0)) == 
+             length(inc_var) &
+           rowSums(across(all_of(r_xx), ~ . == 0)) == length(r_xx)))
+
+a68 <- a68 %>%
+filter(rowSums(across(all_of(r_xx), ~ . 
+                      == 0 | (. >= 30 & . <= 38))) >= 1)
+
+```
+
+## Combination of the dataframe
+
+```{r eval=FALSE}
+T <- bind_rows(a69, a70, a71, a72, a73, a74, a75, 
+               a76, a77, a78, a79, a80, a81, a82, 
+               a83, a84, a85, a86, a87, a88, a89, 
+               a90, a91, a92, a93, a94, a95, a96, 
+               a97, a98, a99, a00)
+
+T <- T %>%
+select(ID, sex, birth_year, age_end_2021, Wtr_sample, Wtr_responding,
+       age_at_first_birth,
+       No_birth_in_recently_updated_year,first_child_born,
+       year_birth_info_most_recently_updated,had_children_before_2021,
+      all_of(inc_var), all_of(r_xx),all_of(sequence_vars), everything())
+
+T2 <- T[apply(T[income_columns], 1, function(row) {
+  all(!is.na(row))
+}), ]
+
+
+```
+
+### Select ER32006(Wtr_sample)，ensure our data is in sample 1，2，3
+
+1.  This individual is original sample (ER30002=001-026)
+2.  This individual is born-in sample (ER30002=030-169)
+3.  This individual is moved-in sample
+
+Data count summary
+
+| Value | Wtr_sample | Explanation                                                    |
+|-------------|-------------|-----------------------------------------------|
+| 0     | 8216       | This individual is nonsample and not part of the elderly group |
+| 1     | 3556       | This individual is an original sample                          |
+| 2     | 8020       | This individual is born-in sample                              |
+| 3     | 1173       | This individual is moved-in sample                             |
+| 4     | 89         | This individual is joint inclusion sample                      |
+| 5     | 704        | This individual was a followable nonsample parent              |
+| 6     | 1          | This individual is a nonsample elderly                         |
+
+| Value | Wtr_responding | Meaning                   |
+|-------|----------------|---------------------------|
+| 0     | 376            | Core always               |
+| 1     | 16753          | Core not always           |
+| 2     | 274            | Latino or Immi always     |
+| 3     | 4356           | Latino or Immi not always |
+
+### Data outline
+
+1.  **There are 4802 families in the original wave and extend to 32824
+    family units in current version**
+
+2.  **There are 84121 individuals in collection and for filter T data we
+    have 21759 individuals, 25.9% of the all samples**
+
+3.  **There are 11125 individuals can be tracked from age 0-20**
+
+4.  **There are 10884 individuals not total lose the child birth
+    information**
+
+5.  **birth history is the summation of the data**
+
+### Gender Distribution Table
+
+Below is the distribution of gender with the corresponding counts:
+
+| Gender | Count |
+|--------|-------|
+| Male   | 11518 |
+| Female | 10241 |
+
+### Frequency Table for `Wtr_responding` in T3
+
+| Value | Count |
+|-------|-------|
+| 0     | 258   |
+| 1     | 10544 |
+| 2     | 7     |
+| 3     | 75    |
+
+### Frequency Table for `Wtr_sample` in T3
+
+| Value | Count |
+|-------|-------|
+| 0     | 4546  |
+| 1     | 23    |
+| 2     | 5439  |
+| 3     | 349   |
+| 4     | 37    |
+| 5     | 490   |
+
+# Version 2
+
+For this version, the structure and data range is changed compared with
+Version 1, the main points are below:
+
+-   The family income time range reduce to 17, means tracking
+    individuals family incomes from they born to age 17. (Time period is
+    0-17 years)
+
+-   Filter the individuals data who does not change their family status
+    at age 17.
+
+-   Try to add wealth variables in our dataframe.
+
+## Filter the individuals whose relation to the head variable is between 30-38 or 0 at age 17
+
+This step need to filter the data year by year.
+
+So we need b68-b00 to indicate the selection from each wave.
+
+Cut the variables from fa_inc_18 to fa_inc_20
+
+```{r eval=FALSE}
+b68 <- fda_data %>%
+  filter(birth_year_int %in% 1968)
+
+b68 <- b68[, c(1:27, 64:133)]
+
+old_names <- as.character(1968:1985)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b68)[names(b68) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+
+b68 <- b68 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+
+b68 <- b68 %>%
+  filter(R_85 == 0 | (R_85 >= 30 & R_85 <= 38))
+
+```
+
+## Continue b69
+
+```{r eval=FALSE}
+b69 <- fda_data %>%
+  filter(birth_year_int %in% 1969)
+
+b69 <- b69[, c(1:9,11:28,64:133)]
+
+old_names <- as.character(1969:1986)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b69)[names(b69) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+
+b69 <- b69 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+
+b69 <- b69 %>%
+  filter(R_86 == 0 | (R_86 >= 30 & R_86 <= 38))
+```
+
+### b70-b81
+
+```{r eval=FALSE}
+# b70
+b70 <- fda_data %>%
+  filter(birth_year_int %in% 1970)
+
+b70 <- b70[, c(1:9,12:29,64:133)]
+
+old_names <- as.character(1970:1987)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b70)[names(b70) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b70 <- b70 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b70 <- b70 %>%
+  filter(R_87 == 0 | (R_87 >= 30 & R_87 <= 38))
+
+
+# b71
+b71 <- fda_data %>%
+  filter(birth_year_int %in% 1971)
+
+b71 <- b71[, c(1:9,13:30,64:133)]
+
+old_names <- as.character(1971:1988)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b71)[names(b71) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b71 <- b71 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ . == 0)) == length(income_columns)))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b71 <- b71 %>%
+  filter(R_88 == 0 | (R_88 >= 30 & R_88 <= 38))
+
+
+# b72
+b72 <- fda_data %>%
+  filter(birth_year_int %in% 1972)
+
+b72 <- b72[, c(1:9,14:31,64:133)]
+
+old_names <- as.character(1972:1989)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b72)[names(b72) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b72 <- b72 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b72 <- b72 %>%
+  filter(R_89 == 0 | (R_89 >= 30 & R_89 <= 38))
+
+
+# b73
+b73 <- fda_data %>%
+  filter(birth_year_int %in% 1973)
+
+b73 <- b73[, c(1:9,15:32,64:133)]
+
+old_names <- as.character(1973:1990)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b73)[names(b73) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b73 <- b73 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b73 <- b73 %>%
+  filter(R_90 == 0 | (R_90 >= 30 & R_90 <= 38))
+
+
+# b74
+b74 <- fda_data %>%
+  filter(birth_year_int %in% 1974)
+
+b74 <- b74[, c(1:9,16:33,64:133)]
+
+old_names <- as.character(1974:1991)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b74)[names(b74) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b74 <- b74 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b74 <- b74 %>%
+  filter(R_91 == 0 | (R_91 >= 30 & R_91 <= 38))
+
+
+# b75
+b75 <- fda_data %>%
+  filter(birth_year_int %in% 1975)
+
+b75 <- b75[, c(1:9,17:34,64:133)]
+
+old_names <- as.character(1975:1992)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b75)[names(b75) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b75 <- b75 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b75 <- b75 %>%
+  filter(R_92 == 0 | (R_92 >= 30 & R_92 <= 38))
+
+
+# b76
+b76 <- fda_data %>%
+  filter(birth_year_int %in% 1976)
+
+b76 <- b76[, c(1:9,18:35,64:133)]
+
+old_names <- as.character(1976:1993)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b76)[names(b76) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b76 <- b76 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b76 <- b76 %>%
+  filter(R_93 == 0 | (R_93 >= 30 & R_93 <= 38))
+
+
+# b77
+b77 <- fda_data %>%
+  filter(birth_year_int %in% 1977)
+
+b77 <- b77[, c(1:9,19:36,64:133)]
+
+old_names <- as.character(1977:1994)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b77)[names(b77) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b77 <- b77 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b77 <- b77 %>%
+  filter(R_94 == 0 | (R_94 >= 30 & R_94 <= 38))
+
+
+# b78
+b78 <- fda_data %>%
+  filter(birth_year_int %in% 1978)
+
+b78 <- b78[, c(1:9,20:37,64:133)]
+
+old_names <- as.character(1978:1995)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b78)[names(b78) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b78 <- b78 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b78 <- b78 %>%
+  filter(R_95 == 0 | (R_95 >= 30 & R_95 <= 38))
+
+# b79
+b79 <- fda_data %>%
+  filter(birth_year_int %in% 1979)
+
+b79 <- b79[, c(1:9,21:38,64:133)]
+
+old_names <- as.character(1979:1996)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b79)[names(b79) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b79 <- b79 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b79 <- b79 %>%
+  filter(R_96 == 0 | (R_96 >= 30 & R_96 <= 38))
+
+
+# b80
+b80 <- fda_data %>%
+  filter(birth_year_int %in% 1980)
+
+b80 <- b80[, c(1:9,22:39,64:133)]
+
+old_names <- as.character(1980:1997)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b80)[names(b80) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b80 <- b80 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b80 <- b80 %>%
+  filter(R_97 == 0 | (R_97 >= 30 & R_97 <= 38))
+
+
+# b81
+b81 <- fda_data %>%
+  filter(birth_year_int %in% 1981)
+
+b81 <- b81[, c(1:9,23:40,64:133)]
+
+old_names <- as.character(1981:1998)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b81)[names(b81) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b81 <- b81 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b81 <- b81 %>%
+  filter(R_99 == 0 | (R_99 >= 30 & R_99 <= 38))
+```
+
+### b83-b91
+
+```{r eval=FALSE}
+# b82
+b82 <- fda_data %>%
+  filter(birth_year_int %in% 1982)
+
+b82 <- b82[, c(1:9,24:41,64:133)]
+
+old_names <- as.character(1982:1999)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b82)[names(b82) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b82 <- b82 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b82 <- b82 %>%
+  filter(R_99 == 0 | (R_99 >= 30 & R_99 <= 38))
+
+# b83
+b83 <- fda_data %>%
+  filter(birth_year_int %in% 1983)
+
+b83 <- b83[, c(1:9,25:42,64:133)]
+
+old_names <- as.character(1983:2000)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b83)[names(b83) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b83 <- b83 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b83 <- b83 %>%
+  filter(R_01 == 0 | (R_01 >= 30 & R_01 <= 38))
+
+
+# b84
+b84 <- fda_data %>%
+  filter(birth_year_int %in% 1984)
+
+b84 <- b84[, c(1:9,26:43,64:133)]
+
+old_names <- as.character(1984:2001)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b84)[names(b84) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b84 <- b84 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b84 <- b84 %>%
+  filter(R_01 == 0 | (R_01 >= 30 & R_01 <= 38))
+
+
+# b85
+b85 <- fda_data %>%
+  filter(birth_year_int %in% 1985)
+
+b85 <- b85[, c(1:9,27:44,64:133)]
+
+old_names <- as.character(1985:2002)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b85)[names(b85) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b85 <- b85 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b85 <- b85 %>%
+  filter(R_03 == 0 | (R_03 >= 30 & R_03 <= 38))
+
+
+# b86
+b86 <- fda_data %>%
+  filter(birth_year_int %in% 1986)
+
+b86 <- b86[, c(1:9,28:45,64:133)]
+
+old_names <- as.character(1986:2003)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b86)[names(b86) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b86 <- b86 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b86 <- b86 %>%
+  filter(R_03 == 0 | (R_03 >= 30 & R_03 <= 38))
+
+
+# b87
+b87 <- fda_data %>%
+  filter(birth_year_int %in% 1987)
+
+b87 <- b87[, c(1:9,29:46,64:133)]
+
+old_names <- as.character(1987:2004)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b87)[names(b87) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b87 <- b87 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b87 <- b87 %>%
+  filter(R_05 == 0 | (R_05 >= 30 & R_05 <= 38))
+
+
+# b88
+b88 <- fda_data %>%
+  filter(birth_year_int %in% 1988)
+
+b88 <- b88[, c(1:9,30:47,64:133)]
+
+old_names <- as.character(1988:2005)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b88)[names(b88) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b88 <- b88 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b88 <- b88 %>%
+  filter(R_05 == 0 | (R_05 >= 30 & R_05 <= 38))
+
+
+# b89
+b89 <- fda_data %>%
+  filter(birth_year_int %in% 1989)
+
+b89 <- b89[, c(1:9,31:48,64:133)]
+
+old_names <- as.character(1989:2006)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b89)[names(b89) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b89 <- b89 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b89 <- b89 %>%
+  filter(R_07 == 0 | (R_07 >= 30 & R_07 <= 38))
+
+
+# b90
+b90 <- fda_data %>%
+  filter(birth_year_int %in% 1990)
+
+b90 <- b90[, c(1:9,32:49,64:133)]
+
+old_names <- as.character(1990:2007)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b90)[names(b90) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b90 <- b90 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b90 <- b90 %>%
+  filter(R_07 == 0 | (R_07 >= 30 & R_07 <= 38))
+
+
+# b91
+b91 <- fda_data %>%
+  filter(birth_year_int %in% 1991)
+
+b91 <- b91[, c(1:9,33:50,64:133)]
+
+old_names <- as.character(1991:2008)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b91)[names(b91) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b91 <- b91 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b91 <- b91 %>%
+  filter(R_09 == 0 | (R_09 >= 30 & R_09 <= 38))
+```
+
+### b92-b00
+
+```{r eval=FALSE}
+# b92
+b92 <- fda_data %>%
+  filter(birth_year_int %in% 1992)
+
+b92 <- b92[, c(1:9,34:51,64:133)]
+
+old_names <- as.character(1992:2009)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b92)[names(b92) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b92 <- b92 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b92 <- b92 %>%
+  filter(R_09 == 0 | (R_09 >= 30 & R_09 <= 38))
+
+
+# b93
+b93 <- fda_data %>%
+  filter(birth_year_int %in% 1993)
+
+b93 <- b93[, c(1:9,35:52,64:133)]
+
+old_names <- as.character(1993:2010)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b93)[names(b93) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b93 <- b93 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b93 <- b93 %>%
+  filter(R_11 == 0 | (R_11 >= 30 & R_11 <= 38))
+
+
+# b94
+b94 <- fda_data %>%
+  filter(birth_year_int %in% 1994)
+
+b94 <- b94[, c(1:9,36:53,64:133)]
+
+old_names <- as.character(1994:2011)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b94)[names(b94) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b94 <- b94 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b94 <- b94 %>%
+  filter(R_11 == 0 | (R_11 >= 30 & R_11 <= 38))
+
+
+# b95
+b95 <- fda_data %>%
+  filter(birth_year_int %in% 1995)
+
+b95 <- b95[, c(1:9,37:54,64:133)]
+
+old_names <- as.character(1995:2012)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b95)[names(b95) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b95 <- b95 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b95 <- b95 %>%
+  filter(R_13 == 0 | (R_13 >= 30 & R_13 <= 38))
+
+
+# b96
+b96 <- fda_data %>%
+  filter(birth_year_int %in% 1996)
+
+b96 <- b96[, c(1:9,38:55,64:133)]
+
+old_names <- as.character(1996:2013)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b96)[names(b96) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b96 <- b96 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b96 <- b96 %>%
+  filter(R_13 == 0 | (R_13 >= 30 & R_13 <= 38))
+
+
+# b97
+b97 <- fda_data %>%
+  filter(birth_year_int %in% 1997)
+
+b97 <- b97[, c(1:9,39:56,64:133)]
+
+old_names <- as.character(1997:2014)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b97)[names(b97) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b97 <- b97 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b97 <- b97 %>%
+  filter(R_15 == 0 | (R_15 >= 30 & R_15 <= 38))
+
+
+# b98
+b98 <- fda_data %>%
+  filter(birth_year_int %in% 1998)
+
+b98 <- b98[, c(1:9,40:57,64:133)]
+
+old_names <- as.character(1998:2015)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b98)[names(b98) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b98 <- b98 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b98 <- b98 %>%
+  filter(R_15 == 0 | (R_15 >= 30 & R_15 <= 38))
+
+
+# b99
+b99 <- fda_data %>%
+  filter(birth_year_int %in% 1999)
+
+b99 <- b99[, c(1:9,41:58,64:133)]
+
+old_names <- as.character(1999:2016)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b99)[names(b99) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b99 <- b99 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b99 <- b99 %>%
+  filter(R_17 == 0 | (R_17 >= 30 & R_17 <= 38))
+
+
+# b00
+b00 <- fda_data %>%
+  filter(birth_year_int %in% 2000)
+
+b00 <- b00[, c(1:9,42:59,64:133)]
+
+old_names <- as.character(2000:2017)
+new_names <- paste0("fa_inc_", 0:17)
+
+# rename income rows
+names(b00)[names(b00) %in% old_names] <- new_names
+income_columns <- paste0("fa_inc_", 0:17) 
+
+# Remove the individuals who can't track the family incomes
+b00 <- b00 %>%
+  filter(!(rowSums(across(all_of(income_columns), ~ is.na(.) | . < 0)) > 0))
+
+# Filter relation to the head variable is between 30-38 or 0 at age 17
+b00 <- b00 %>%
+  filter(R_17 == 0 | (R_17 >= 30 & R_17 <= 38))
+```
+
+## Combination of each wave
+
+```{r eval=FALSE}
+T4 <- bind_rows(
+  b68, b69, b70, b71, b72, b73, b74, b75, b76, b77,
+  b78, b79, b80, b81, b82, b83, b84, b85, b86, b87,
+  b88, b89, b90, b91, b92, b93, b94, b95, b96, b97,
+  b98, b99, b00
+)
+
+
+T4 <- T4 %>%
+select(ID, sex, birth_year, age_end_2021, Wtr_sample, Wtr_responding,
+       age_at_first_birth,
+       No_birth_in_recently_updated_year,first_child_born,
+       year_birth_info_most_recently_updated,had_children_before_2021,
+      all_of(inc_var1), all_of(r_xx),all_of(sequence_vars), everything())
+
+
+# remove the individuals who is followable nonsample parent or nonsample elderly. 
+
+T4 <- T4 %>%
+  filter(!(Wtr_sample %in% c(5, 6)))
+
+
+## Remove filter variables
+T4 <- T4 %>%
+  select (-all_of(r_xx), -all_of(sequence_vars),-Wtr_sample)
+
+```

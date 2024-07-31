@@ -1,0 +1,181 @@
+---
+title: "PSID Data Variables Description"
+output: 
+  github_document:
+    toc: true
+    toc_depth: 3
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## individuals
+
+### [entry year/wave]ID information of individuals
+
+-   1968 family ID number(68 ID)
+
+    [68]ER30001
+
+-   1968 person number
+
+    [68]ER30002
+
+-   The combination of ER30001 and ER30002 provides unique
+    identification for each individual on the data file. Formula is
+    $ID = (ER30001 * 1000) + ER30002$
+
+### [entry year/wave]Interview variable
+
+-   From 1969-2021. not very important here
+
+[69]ER30020 [70]ER30043 [71]ER30067 [72]ER30091 [73]ER30117 [74]ER30138
+
+[75]ER30160 [76]ER30188 [77]ER30217 [78]ER30246 [79]ER30283 [80]ER30313
+
+[81]ER30343 [82]ER30373 [83]ER30399 [84]ER30429 [85]ER30463 [86]ER30498
+
+[87]ER30535 [88]ER30570 [89]ER30606 [90]ER30642 [91]ER30689 [92]ER30733
+
+[93]ER30806 [94]ER33101 [95]ER33201 [96]ER33301 [97]ER33401 [99]ER33501
+
+[01]ER33601 [03]ER33701 [05]ER33801 [07]ER33901 [09]ER34001 [11]ER34101
+
+[13]ER34201 [15]ER34301 [17]ER34501 [19]ER34701 [21]ER34901
+
+### [entry year/wave]Sequence number
+
+-   Identify the individuals family status for each wave
+-   **Sequence number** = 0 -20 to keep individuals in the family at the
+    time of the baseline wave and all subsequent wave
+
+[69]ER30021 [70]ER30044 [71]ER30068 [72]ER30092 [73]ER30118 [74]ER30139
+
+[75]ER30161 [76]ER30189 [77]ER30218 [78]ER30247 [79]ER30284 [80]ER30314
+
+[81]ER30344 [82]ER30374 [83]ER30400 [84]ER30430 [85]ER30464 [86]ER30499
+
+[87]ER30536 [88]ER30571 [89]ER30607 [90]ER30643 [91]ER30690 [92]ER30734
+
+[93]ER30807 [94]ER33102 [95]ER33202 [96]ER33302 [97]ER33402 [99]ER33502
+
+[01]ER33602 [03]ER33702 [05]ER33802 [07]ER33902 [09]ER34002 [11]ER34102
+
+[13]ER34202 [15]ER34302 [17]ER34502 [19]ER34702 [21]ER34902
+
+### [entry year/wave]Relationship to head/reference
+
+-   Identify the family relationship in family unit
+-   **Keep relationship to the head** variable = 3 and 0 from 1968 -
+    1982, 30-38, 0 from 1983-2021
+
+[68]ER30003 [69]ER30022 [70]ER30045 [71]ER30069 [72]ER30093 [73]ER30119
+
+[74]ER30140 [75]ER30162 [76]ER30190 [77]ER30219 [78]ER30248 [79]ER30285
+
+[80]ER30315 [81]ER30345 [82]ER30375 [83]ER30401 [84]ER30431 [85]ER30465
+
+[86]ER30500 [87]ER30537 [88]ER30572 [89]ER30608 [90]ER30644 [91]ER30691
+
+[92]ER30735 [93]ER30808 [94]ER33103 [95]ER33203 [96]ER33303 [97]ER33403
+
+[99]ER33503 [01]ER33603 [03]ER33703 [05]ER33803 [07]ER33903 [09]ER34003
+
+[11]ER34103 [13]ER34203 [15]ER34303 [17]ER34503 [19]ER34703 [21]ER34903
+
+### Whether Individual Is Sample
+
+-   This variable not only indicates persons who were sample members but
+    also flags nonsample members who were designated as followable.
+
+-   Thus far in PSID history, two such nonsample groups exist: nonsample
+    elderly individuals, followed from 1990 through 1995, and nonsample
+    parents of sample children if the children were under age 18,
+    followed from 1994 through 2003.
+
+-   Common choice is select 1,2,3. For a large sample can be tracked, we
+    don't select this variable.
+
+[21]ER32006
+
+### [entry year/wave]Year of individual born: year collection from 1983
+
+-   Birth year collection between 1968-2000
+-   Perspective children birth range 20-45
+-   Combining month and year and converting it to a format like 1998.xxx
+    is known as the “fractional year” method.
+-   Year born
+
+[83]ER30404 [84]ER30434 [85]ER30468 [86]ER30503 [87]ER30540 [88]ER30575
+
+[89]ER30611 [90]ER30647 [91]ER30694 [92]ER30738 [93]ER30811 [94]ER33106
+
+[95]ER33206 [96]ER33306 [97]ER33406 [99]ER33506 [01]ER33606 [03]ER33706
+
+[05]ER33806 [07]ER33906 [09]ER34006 [11]ER34106 [13]ER34206 [15]ER34307
+
+[17]ER34506 [19]ER34706 [21]ER34906
+
+-   Month born
+
+[83]ER30403 [84]ER30433 [85]ER30467 [86]ER30502 [87]ER30539 [88]ER30574
+
+[89]ER30610 [90]ER30646 [91]ER30693 [92]ER30737 [93]ER30810 [94]ER33105
+
+[95]ER33205 [96]ER33305 [97]ER33405 [99]ER33505 [01]ER33605 [03]ER33705
+
+[05]ER33805 [07]ER33905 [09]ER34005 [11]ER34105 [13]ER34205 [15]ER34306
+
+[17]ER34505 [19]ER34705 [21]ER34905
+
+## Fertility Variables
+
+### YEAR 1ST/ONLY CHILD BORN
+
+-   Year born range 1900-2021. for 9999, only keep it as 9999.
+
+ER32024
+
+-   Month born range 1-12 month, 21-24 season, 98 unknown suggest to set
+    0.5, 99 is missing or incomplete
+
+ER32023
+
+### Number of Live Births to this Individual
+
+-   Value 98 means NA or Don't Know, 99 means No birth history was
+    collected for this individual for each wave collection
+-   The collection link to ER32021
+
+ER32022
+
+### Most Recent Wave in Which Individual's Birth History Data Were Updated
+
+-   Value 9999 means no birth history was collected for this individual
+    in 1985-2021
+
+ER32021
+
+## Family Incomes
+
+-   This variable is the sum of the each wave below:
+
+-- taxable income of head and wife
+
+-- transfer income of head and wife
+
+-- taxable income of other family unit members (OFUMs)
+
+-- transfer income of OFUMs and other income
+
+[68]V81 [69]V529 [70]V1514 [71]V2226 [72]V2852 [73]V3256 [74]V3676
+[75]V4154 [76]V5029 [77]V5626 [78]V6173 [79]V6766 [80]V7412 [81]V8065
+[82]V8689 [83]V9375 [84]V11022 [85]V12371 [86]V13623 [87]V14670
+[88]V16144 [89]V17533 [90]V18875 [91]V20175 [92]V21481 [93]V23322
+[94]ER4153 [95]ER6993 [96]ER9244 [97]ER12079 [99]ER16462 [01]ER20456
+[03]ER24099 [05]ER28037 [07]ER41027 [09]ER46935 [11]ER52343 [13]ER58152
+[15]ER65349 [17]ER71426 [19]ER77448 [21]ER81775

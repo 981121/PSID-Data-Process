@@ -4,6 +4,9 @@ output:
   github_document:
     toc: true
     toc_depth: 3
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -21,11 +24,11 @@ Over the PSID survey spanning more than fifty years, we encounter the
 mortality and attrition of the earliest generation. Concurrently, the
 children within these families mature, assume parental roles, and
 establish new households, thereby transitioning from the status of
-children to parents. 
+children to parents.
 
-Consequently, it is imperative to precisely
-delineate the terminology for each generation. In our study, we
-primarily categorize the subjects into three generations.
+Consequently, it is imperative to precisely delineate the terminology
+for each generation. In our study, we primarily categorize the subjects
+into three generations.
 
 1.  **Generation I: PARENTS**
 
@@ -60,7 +63,7 @@ first generation. They will be as an individual to be collected.
 
 **The perspective individuals birth period from age 20-45**
 
-###  Range of the individuals birth year: 1968-2000
+### Range of the individuals birth year: 1968-2000
 
 -   If the individual age is less than 20 until 2021, is out of our
     sample.
@@ -68,7 +71,7 @@ first generation. They will be as an individual to be collected.
 -   If individual’s age over than 45 before 2021, only collect the
     information between 20 and 45
 
-###  Individuals birth
+### Individuals birth
 
 -   To determine the birthdate of each individual, we use the wave that
     is closest to the individual’s actual birth year with a recorded
@@ -101,12 +104,12 @@ planned parenthood.
     this individual's first or only child. The data are current as of
     the wave.
 
-###  Number of Live Births to this Individual
+### Number of Live Births to this Individual
 
 -   The values for this variable indicate the total number of children
     born to this individual as of the wave.
 
-###  Most Recent Wave in Which Individual's Birth History Data Were Updated
+### Most Recent Wave in Which Individual's Birth History Data Were Updated
 
 -   This variable indicates the recency of the birth history information
     from 1985-2021.
@@ -133,19 +136,18 @@ planned parenthood.
     to these shifts. Additionally, children may leave the family and
     lose contact, which further complicates the data.
 
--  __To address these issues, my approach is to focus exclusively on
+-   **To address these issues, my approach is to focus exclusively on
     the period when individuals are aged 0-20 and are designated as
-    children within the family.__ This approach helps avoid the
+    children within the family.** This approach helps avoid the
     aforementioned problems and ensures that the family data is fully
     relevant to the child. Therefore, the household income data
     corresponding to each individual will only include data from the 20
     years following their birth and will be limited to periods when the
     individual is identified as a child within the family.
-    
 
 ## Assumption of missing data
 
-###  Individual information
+### Individual information
 
 -   Remove the individual who lost all the birth information
 
@@ -153,7 +155,7 @@ planned parenthood.
     set 0.5. For example, who born in 1987, and no month information,
     our data point should be 1987.5.
 
-###  Birth information
+### Birth information
 
 -   For child who does not have birth month information (value = 98),
     suggest to set 0.5. For example, who born in 1987, and no month
@@ -165,7 +167,7 @@ planned parenthood.
 -   Number of Live Births to this Individual: remove value 99 form rows
     means they are out of samples.
 
-###  Family income information
+### Family income information
 
 -   Since 1997, waves have been conducted biennially. Therefore, we need
     to supplement the years without data post-1996 and interpolate them
