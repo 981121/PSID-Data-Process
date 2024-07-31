@@ -47,7 +47,65 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Data Resources
 
-### Packages preparation and uplode Data from original dataset
+We build the data by the PSID Cross_Year Index
+
+[PSID Cross-Year Index
+(umich.edu)](https://simba.isr.umich.edu/DC/i.aspx) Link to the website
+
+Those variables can be chosen by years and check which variables are
+available in which wave. Furthermore, when I choose the individual
+variables and also can link individual to his or her family information.
+ 
+
+Our data has two levels include **individuals data index** and **family
+public data index**
+
+Clicking the plus sign on the left will display the available variables
+and their collection status for each year.
+
+I started with individual-level data to collect information on
+individuals and their fertility, then clicked on family-level data to
+collect household income data for the corresponding individuals.
+
+For the original data, I chose the variables below:
+
+### Summary Variables
+
+1.  Family interview number ( include 68 family number)
+
+2.  person number
+
+3.  Sequence number
+
+4.  Relationship to head/reference
+
+5.  Whether Individual Is Sample
+
+### **Individuals data index**
+
+1.  Children:
+    1.  Birth Dates:
+        -   first/only：
+            -   month
+            -   year
+        -   pregnancy：
+            -   Total Number Births
+            -   Year Birth History Collected
+2.  Demographic
+    -   Age:
+        -   month born
+        -   year born
+    -   Sex
+3.  Family Composition
+    -   Always Present in Response FU (family unit)
+
+### **Family public data index**
+
+-   Income
+    -   Family income
+        -   Taxable: **total family income**
+
+### Packages preparation and upload Data from original dataset
 
 ```{r eval=FALSE}
 library(readxl)

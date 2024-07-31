@@ -13,7 +13,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## individuals
+## Individuals
 
 ### [entry year/wave]ID information of individuals
 
@@ -66,6 +66,55 @@ knitr::opts_chunk$set(echo = TRUE)
 [01]ER33602 [03]ER33702 [05]ER33802 [07]ER33902 [09]ER34002 [11]ER34102
 
 [13]ER34202 [15]ER34302 [17]ER34502 [19]ER34702 [21]ER34902
+
+**Purpose of the Variable （ for example 1969 interview）**
+
+This variable identifies the status of an individual concerning their
+family unit (FU) at the time of the 1969 interview. It helps to classify
+individuals based on where they were living or their response status in
+the survey.
+
+**Categories and Coding:**
+
+	1.	**Individuals in the Family (1 - 20):**
+
+	•	**Count:** 16,493 (19.61%)
+
+	•	**Description:** These are individuals who were living with their
+family during the 1969 interview.
+
+	2.	**Individuals in Institutions (51 - 59):**
+
+	•	**Count:** 369 (0.44%)
+
+	•	**Description:** These are individuals living in institutions such as
+mental hospitals, nursing homes, orphanages, or prisons during the 1969
+interview.
+
+	3.	**Individuals Who Moved Out or Non-respondents (71 - 80):**
+
+	•	**Count:** 283 (0.34%)
+
+	•	**Description:** These are individuals who moved out of the family unit
+or institutions between the 1968 and 1969 interviews and were not
+included in another family unit for the 1969 survey. They were
+considered non-respondents.
+
+	4.	**Deceased Individuals (81 - 89):**
+
+	•	**Count:** 67 (0.08%)
+
+	•	**Description:** These are individuals who were alive in 1968 but
+passed away before the 1969 interview.
+
+	5.	**Others (0):**
+
+	•	**Count:** 66,909 (79.54%)
+
+	•	**Description:** This includes individuals born or who moved in after
+the 1969 interview, from immigrant or Latino samples, or those whose
+main family did not respond to the 1969 survey, or who moved out and did
+not respond in 1968.
 
 ### [entry year/wave]Relationship to head/reference
 

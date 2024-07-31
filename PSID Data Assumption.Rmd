@@ -73,14 +73,14 @@ first generation. They will be as an individual to be collected.
 
 ### Individuals birth
 
--   To determine the birthdate of each individual, we use the wave that
+-   To determine the birth date of each individual, we use the wave that
     is closest to the individual’s actual birth year with a recorded
     entry.
 
--   We then deduplicate the records to compile a comprehensive list of
+-   We then reduplicate the records to compile a comprehensive list of
     all individuals with birth records from 1983 to 2021.
 
-## Definition of fertlilty
+## Definition of fertility
 
 Fertility data has been recorded from 1985 to 2021. During this period,
 there may be instances where contact was lost and fertility records
