@@ -76,42 +76,57 @@ the survey.
 
 **Categories and Coding:**
 
-	1.	**Individuals in the Family (1 - 20):**
+```         
+1.  **Individuals in the Family (1 - 20):**
 
-	•	**Count:** 16,493 (19.61%)
+•   **Count:** 16,493 (19.61%)
 
-	•	**Description:** These are individuals who were living with their
+•   **Description:** These are individuals who were living with their
+```
+
 family during the 1969 interview.
 
-	2.	**Individuals in Institutions (51 - 59):**
+```         
+2.  **Individuals in Institutions (51 - 59):**
 
-	•	**Count:** 369 (0.44%)
+•   **Count:** 369 (0.44%)
 
-	•	**Description:** These are individuals living in institutions such as
+•   **Description:** These are individuals living in institutions such as
+```
+
 mental hospitals, nursing homes, orphanages, or prisons during the 1969
 interview.
 
-	3.	**Individuals Who Moved Out or Non-respondents (71 - 80):**
+```         
+3.  **Individuals Who Moved Out or Non-respondents (71 - 80):**
 
-	•	**Count:** 283 (0.34%)
+•   **Count:** 283 (0.34%)
 
-	•	**Description:** These are individuals who moved out of the family unit
+•   **Description:** These are individuals who moved out of the family unit
+```
+
 or institutions between the 1968 and 1969 interviews and were not
 included in another family unit for the 1969 survey. They were
 considered non-respondents.
 
-	4.	**Deceased Individuals (81 - 89):**
+```         
+4.  **Deceased Individuals (81 - 89):**
 
-	•	**Count:** 67 (0.08%)
+•   **Count:** 67 (0.08%)
 
-	•	**Description:** These are individuals who were alive in 1968 but
+•   **Description:** These are individuals who were alive in 1968 but
+```
+
 passed away before the 1969 interview.
 
-	5.	**Others (0):**
+```         
+5.  **Others (0):**
 
-	•	**Count:** 66,909 (79.54%)
+•   **Count:** 66,909 (79.54%)
 
-	•	**Description:** This includes individuals born or who moved in after
+•   **Description:** This includes individuals born or who moved in after
+```
+
 the 1969 interview, from immigrant or Latino samples, or those whose
 main family did not respond to the 1969 survey, or who moved out and did
 not respond in 1968.
@@ -181,6 +196,50 @@ not respond in 1968.
 
 [17]ER34505 [19]ER34705 [21]ER34905
 
+### [entry year/wave] **AGE OF INDIVIDUAL**
+
+-   Newborn up to second birthday = 1.
+
+-   Used by checking if the birth date is correct
+
+[68]ER30004 [69]ER30023 [70]ER30046 [71]ER30070 [72]ER30094 [73]ER30120
+[74]ER30141 [75]ER30163 [76]ER30191 [77]ER30220 [78]ER30249 [79]ER30286
+[80]ER30316 [81]ER30346 [82]ER30376 [83]ER30402 [84]ER30432 [85]ER30466
+[86]ER30501 [87]ER30538 [88]ER30573 [89]ER30609 [90]ER30645 [91]ER30692
+[92]ER30736 [93]ER30809 [94]ER33104 [95]ER33204 [96]ER33304 [97]ER33404
+[99]ER33504 [01]ER33604 [03]ER33704 [05]ER33804 [07]ER33904 [09]ER34004
+[11]ER34104 [13]ER34204 [15]ER34305 [17]ER34504 [19]ER34704 [21]ER34904
+
+### **ORDER OF BIRTH TO FATHER**
+
+-   Birth Order Ranking of Individual with Father
+
+**ER32020**
+
+### **TOTAL \# CHILDREN BORN TO FATHER**
+
+-   Total Number of Children Born to this Individual's Father
+
+**ER32019**
+
+### **ORDER OF BIRTH TO MOTHER**
+
+-   Birth Order Ranking of Individual with Mother
+
+**ER32013**
+
+### **MARITAL STATUS OF MOTHER AT BIRTH**
+
+-   Marital Status of Mother at Time of Individual's Birth
+
+**ER32015**
+
+### **TOTAL \# CHILDREN BORN TO MOTHER**
+
+-   Total Number of Children Born to this Individual's Mother
+
+**ER32012**
+
 ## Fertility Variables
 
 ### YEAR 1ST/ONLY CHILD BORN
@@ -228,3 +287,31 @@ ER32021
 [94]ER4153 [95]ER6993 [96]ER9244 [97]ER12079 [99]ER16462 [01]ER20456
 [03]ER24099 [05]ER28037 [07]ER41027 [09]ER46935 [11]ER52343 [13]ER58152
 [15]ER65349 [17]ER71426 [19]ER77448 [21]ER81775
+
+### Parental Income
+
+-   Taxable income of Head and Wife
+
+-   This variable is the sum of Head's labor income, Wife's labor
+    income, asset part of income from farm, business, roomers, etc.,
+    rental, interest and dividend income, and Wife's income from assets.
+
+[68]V76 [69]V518 [70]V1205 [71]V1906 [72]V2507 [73]V3060 [74]V3472
+[75]V3872 [76]V4386 [77]V5297 [78]V5796 [79]V6408 [80]V6998 [81]V7590
+[82]V8283 [83]V8891 [84]V10277 [85]V11419 [86]V12818 [87]V13920
+[88]V14935 [89]V16435 [90]V17851 [91]V19151 [92]V20451 [93]V21959
+[94]ER4146 [95]ER6986 [96]ER9237 [97]ER12069 [99]ER16452 [01]ER20449
+[03]ER24100 [05]ER27953 [07]ER40943 [09]ER46851 [11]ER52259 [13]ER58060
+[15]ER65253 [17]ER71330 [19]ER77352 [21]ER81679
+
+### Taxable income of others in FU
+
+-   Taxable income of all earners, other than Head and Wife
+
+[68]V79 [69]V521 [70]V1222 [71]V1924 [72]V2525 [73]V3078 [74]V3490
+[75]V3891 [76]V4406 [77]V5318 [78]V5817 [79]V6428 [80]V7033 [81]V7625
+[82]V8318 [83]V8926 [84]V10382 [85]V11561 [86]V12968 [87]V14070
+[88]V15085 [89]V16585 [90]V18001 [91]V19301 [92]V20601 [93]V22373
+[94]ER4150 [95]ER6990 [96]ER9241 [97]ER12073 [99]ER16456 [01]ER20453
+[03]ER24102 [05]ER28009 [07]ER40999 [09]ER46907 [11]ER52315 [13]ER58124
+[15]ER65321 [17]ER71398 [19]ER77420 [21]ER81747
