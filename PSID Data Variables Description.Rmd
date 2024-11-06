@@ -29,6 +29,16 @@ knitr::opts_chunk$set(echo = TRUE)
     identification for each individual on the data file. Formula is
     $ID = (ER30001 * 1000) + ER30002$
 
+
+### Sex of individuals 
+
+-  ER32000(All Years) 	"SEX OF INDIVIDUAL"
+
+
+1 - Male
+2 - Female
+
+
 ### [entry year/wave]Interview variable
 
 -   From 1969-2021. not very important here
