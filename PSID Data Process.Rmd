@@ -116,7 +116,7 @@ library(dplyr)
 library(openxlsx)
 library(pracma)
 library(lubridate)
-J336132 <- read_excel("~/Dropbox/Functional Fertility/PSID/Original data/J336132.xlsx")
+J336638 <- read_excel("~/Dropbox/Functional Fertility/PSID/J336638.xlsx")
 fd<- data.frame(J336638)
 
 ```
